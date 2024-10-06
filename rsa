@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+"""
+RSA Module
+This module specifically factorizes RSA numbers into prime factors.
+"""
+
+import math
+import random
+import sys
+
+
+def trial_division(n):
+    """
+    Najaribu kutumia trial division.
+
+    Args:
+        n (int): The number to be factorized.
+
+    Returns:
+        tuple: A tuple containing two factors of the number.
+    """
+    factor = 2
+    while factor * factor <= n:
+        if n % factor == 0:
+            return factor, n // factor
+        factor += 1
+    return n, 1
+
+
+def pollards_rho(n):
+    """
+    And of course Pollard's Rho algorithm.
+    Uses Pollard's Rho algorithm to find a factor of a large number.
+
+    Args:
+        n (int): The number to be factorized.
+
+    Returns:
+        int: One factor of the number.
+    """
+    if n % 2 == 0:
+        return 2
+    x = random.randint(2, n - 1)
+    y = x
+    c = random.randint(1, n - 1)
+    g = 1
+    while g == 1:
+        x = (pow(x, 2, n) + c) % n
+        y = (pow(y, 2, n) + c) % n
+        y = (pow(y, 2, n) + c) % n
+        g = math.gcd(abs(x - y), n)
+    return g
+
+
+def factorize_rsa(n):
+    """
+    Inagawanya namba za RSA
+    Aje?? into two prime factors using trial division and Pollard's Rho.
+
+    Args:
+        n (int): The RSA number to be factorized.
+
+    Returns:
+        tuple: Two prime factors of the number.
+    """
+    if n <= 1:
+        return n, 1
+    factor, other_factor = trial_division(n)
+    if factor != n:
+        return factor, other_factor
+    factor = pollards_rho(n)
+    return factor, n // factor
+
+
+def main(file):
+    """
+    Reads the input file and factors each RSA number into its prime factors.
+
+    Args:
+        file (str): The name of the file containing RSA numbers.
+
+    """
+    with open(file, 'r') as f:
+        for line in f:
+            number = int(line.strip())
+            p, q = factorize_rsa(number)
+            print(f"{number}={p}*{q}")
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: rsa <file>")
+        sys.exit(1)
+    main(sys.argv[1])
