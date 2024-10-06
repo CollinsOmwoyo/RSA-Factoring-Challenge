@@ -1,0 +1,84 @@
+#!/usr/bin/python3
+"""
+Hii programu inafanya factorization ya
+numbers into the product of two smaller numbers.
+"""
+
+import math
+import random
+import sys
+
+
+def trial_division(n):
+    """
+    Inajaribu first using trial division for smaller numbers.
+
+    :param n: Namba ya kugawa (Number to factorize)
+    :return: Zao la namba mbili (Two factors)
+    """
+    factor = 2
+    while factor * factor <= n:
+        if n % factor == 0:
+            return factor, n // factor
+        factor += 1
+    return n, 1
+
+
+def pollards_rho(n):
+    """
+    Uses Pollard's Rho algorithm to factor large numbers.
+
+    :param n: Namba ya kugawa (Number to factorize)
+    :return: (Factor of the number)
+    """
+    if n % 2 == 0:
+        return 2
+    x = random.randint(2, n-1)
+    y = x
+    c = random.randint(1, n-1)
+    g = 1
+    while g == 1:
+        x = (pow(x, 2, n) + c) % n
+        y = (pow(y, 2, n) + c) % n
+        y = (pow(y, 2, n) + c) % n
+        g = math.gcd(abs(x - y), n)
+    return g
+
+
+def factorize(n):
+    """
+    Inafanya factorization
+    Factorizes a number using different methods
+    depending on the size of the number.
+
+    :param n: Namba ya kugawa (Number to factorize)
+    :return: Zao (Two factors)
+    """
+    if n <= 1:
+        return n, 1
+    factor, other_factor = trial_division(n)
+    if factor != n:
+        return factor, other_factor
+    factor = pollards_rho(n)
+    return factor, n // factor
+
+
+def main(file):
+    """
+    Reads a file and factorizes all the numbers inside it.
+
+    :param file: Faili(File containing numbers)
+    """
+    with open(file, 'r') as f:
+        for line in f:
+            number = int(line.strip())
+            p, q = factorize(number)
+            print(f"{number}={p}*{q}")
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Matumizi: factors <file>")
+        print("Usage: factors <file>")
+        sys.exit(1)
+    main(sys.argv[1])
